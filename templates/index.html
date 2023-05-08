@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Famous Quotes Quiz</title>
+  <style>
+      body {
+  margin: 0;
+  padding: 0;
+  font-family: Arial, Helvetica, sans-serif;
+  background-color: #222;
+  color: #fff;
+}
+
+header {
+  background-color: #111;
+  padding: 20px;
+  text-align: center;
+}
+
+header h1 {
+  margin: 0;
+  font-size: 36px;
+}
+
+nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #333;
+  padding: 10px;
+}
+
+nav ul {
+  display: flex;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+nav ul li {
+  margin-right: 20px;
+}
+
+nav ul li:last-child {
+  margin-right: 0;
+}
+
+nav ul li a {
+  color: #fff;
+  text-decoration: none;
+}
+
+nav ul li a:hover {
+  color: #ccc;
+}
+
+main {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+/* Quiz section */
+#quiz {
+  max-width: 600px;
+  margin: 0 auto;
+  text-align: center;
+  padding: 50px;
+  background-color: #2c2c2c;
+  border-radius: 10px;
+  box-shadow: 0px 0px 20px 0px rgba(0, 0, 0, 0.3);
+}
+
+#question {
+  font-size: 28px;
+  margin-bottom: 20px;
+  color: #fff;
+}
+
+#choices li {
+  display: inline-block;
+  margin: 0 10px;
+}
+
+.choice {
+  width: 200px;
+  height: 50px;
+  font-size: 1.2rem;
+  background-color: #ff7300d8;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  margin: 10px;
+  cursor: pointer;
+}
+
+
+.choice:hover {
+  background-color: #343434;
+}
+
+.correct {
+  background-color: #008000;
+}
+
+.incorrect {
+  background-color: #ff0000;
+}
+
+/* Results section */
+#results {
+  max-width: 600px;
+  margin: 50px auto;
+  text-align: center;
+  padding: 50px;
+  background-color: #2c2c2c;
+  border-radius: 10px;
+  box-shadow: 0px 0px 20px 0px rgba(0, 0, 0, 0.3);
+}
+
+#results h2 {
+  font-size: 28px;
+  margin-bottom: 20px;
+  color: #fff;
+}
+
+#results p {
+  font-size: 24px;
+  margin-bottom: 20px;
+  color: #fff;
+}
+
+#score {
+  font-weight: bold;
+  color: #008000;
+}
+
+#totalQuestions {
+  font-weight: bold;
+}
+
+#restartBtn {
+  background-color: #1a1a1a;
+  color: #fff;
+  font-size: 20px;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+#restartBtn:hover {
+  background-color: #343434;
+}
+  </style>
+</head>
+<body>
+  <header>
+    <nav>
+      <ul>
+        <li><a href="index.html">Home</a></li>
+      </ul>
+    </nav>
+    <h1>Famous Quotes Quiz</h1>
+  </header>
+
+  <main>
+    <section id="quiz">
+      <h2 id="question">{{ questions[0][0] }}</h2>
+      <ul id="choices">
+        <li><button class="choice" id="choiceA">{{ questions[0][1] }}</button></li>
+        <li><button class="choice" id="choiceB">{{ questions[0][2] }}</button></li>
+        <li><button class="choice" id="choiceC">{{ questions[0][3] }}</button></li>
+        <li><button class="choice" id="choiceD">{{ questions[0][4] }}</button></li>
+      </ul>
+    </section>
+
+
+    <section id="results">
+      <h2>Results</h2>
+      <p>You got <span id="score">0</span> out of <span id="totalQuestions">0</span> questions correct.</p>
+      <button id="restartBtn">Restart Quiz</button>
+    </section>
+  </main>
+
+<script>
+    const questions = {{questions | tojson}};
+    console.log(questions)
+
+    const questionElement = document.getElementById("question");
+    const choicesElements = document.querySelectorAll("#choices .choice");
+    const scoreElement = document.getElementById("score");
+    const totalQuestionsElement = document.getElementById("totalQuestions");
+    const resultsSection = document.getElementById("results");
+    const restartButton = document.getElementById("restartBtn");
+
+    let currentQuestionIndex = 0;
+    let score = 0;
+
+    setQuestion(currentQuestionIndex);
+
+    choicesElements.forEach((choice) => {
+      choice.addEventListener("click", () => {
+        const selectedOption = Number(choice.getAttribute("data-option"));
+        const isCorrect = selectedOption === questions[currentQuestionIndex][5];
+        if (isCorrect) {
+          score++;
+        }
+        currentQuestionIndex++;
+        if (currentQuestionIndex >= questions.length) {
+          showResults();
+        } else {
+          setQuestion(currentQuestionIndex);
+        }
+      });
+    });
+
+    function setQuestion(index) {
+      questionElement.textContent = questions[index][0];
+      choicesElements.forEach((choice, i) => {
+        choice.textContent = questions[index][i + 1];
+        choice.setAttribute("data-option", i);
+      });
+    }
+
+    function showResults() {
+      questionElement.style.display = "none";
+      choicesElements.forEach((choice) => {
+        choice.style.display = "none";
+      });
+      scoreElement.textContent = score;
+      totalQuestionsElement.textContent = questions.length;
+      resultsSection.style.display = "block";
+      restartButton.addEventListener("click", restartQuiz);
+    }
+
+    function restartQuiz() {
+      currentQuestionIndex = 0;
+      score = 0;
+      setQuestion(currentQuestionIndex);
+      questionElement.style.display = "block";
+      choicesElements.forEach((choice) => {
+        choice.style.display = "block";
+      });
+      resultsSection.style.display = "none";
+    }
+</script>
+</body>
+</html>
